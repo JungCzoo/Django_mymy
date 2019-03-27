@@ -17,3 +17,10 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+
+class Search(models.Model):
+    name = models.CharField(max_length=100)
+    tier = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
