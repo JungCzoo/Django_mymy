@@ -8,7 +8,8 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ('title', 'text',)
 
-class LoL(forms.ModelForm):
-    class summoner:
+class SearchForm(forms.ModelForm):
+    class Meta:
         model = Search
-        fields = ('name', 'tier')
+        fields = ('summoner_name',)
+

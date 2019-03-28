@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from django.utils import timezone
 from .models import Post, Search
-from .forms import PostForm, LoL
+from .forms import PostForm, SearchForm
 from django.shortcuts import redirect
+from . import find_profile
 
 
 def post_list(request):
@@ -19,7 +20,6 @@ def post_new(request):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            post.published_date = timezone.now()
             post.save()
             return redirect('post_detail', pk=post.pk)
     else:
@@ -33,17 +33,39 @@ def post_edit(request, pk):
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            post.published_date = timezone.now()
             post.save()
             return redirect('post_detail', pk=post.pk)
     else:
         form = PostForm(instance=post)
     return render(request, 'mymy/post_edit.html', {'form': form})
 
+def post_draft_list(request):
+    posts = Post.objects.filter(published_date__isnull=True).order_by('created_date')
+    return render(request, 'mymy/post_draft_list.html', {'posts': posts})
+
+def post_publish(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    post.publish()
+    return redirect('post_detail', pk=pk)
+
+def post_remove(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    post.delete()
+    return redirect('post_list')
+
+
 
 def lol_search(request):
-    return render(request, 'mymy/lol_search.html')
+    if request.method == "POST":
+        form = SearchForm(request.POST)
+        if form.is_valid():
+            summoner = form.save(commit=False)
+            find = find_profile
+            profiles = find.search(summoner)
+            return render(request, 'mymy/lol_profile.html', {'profiles' : profiles})
+    else:
+        form = SearchForm()
+        return render(request, 'mymy/lol_search.html', {'form' : form})
 
 def lol_profile(request):
-    name = request.getParameter("name")
     return render(request, 'mymy/lol_profile.html')

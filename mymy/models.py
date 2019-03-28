@@ -19,8 +19,6 @@ class Post(models.Model):
         return self.title
 
 class Search(models.Model):
-    name = models.CharField(max_length=100)
-    tier = models.CharField(max_length=100)
-
+    summoner_name = models.CharField(max_length=100)
     def __str__(self):
-        return self.name
+        return self.summoner_name
