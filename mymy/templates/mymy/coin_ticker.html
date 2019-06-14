@@ -1,0 +1,103 @@
+{% extends 'mymy/base.html' %}
+
+{% block content %}
+{{coin_name}}
+<div style="float:right;width:30%;height:50%">
+    <table id="myTable"  class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>코인</th>
+                <th>현재가</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for key, value in prices.items %}
+            <tr>
+                <td>{{key}}</td>
+                <td>{{ value }}</td>
+            </tr>
+            {% endfor %}
+        </tfoot>
+    </table>
+</div>
+
+
+<div style="float:left;width:70%;height:50%">
+<!-- Styles -->
+<style>
+#chartdiv {
+  width: 100%;
+  height: 500px;
+}
+</style>
+
+<!-- Resources -->
+<script src="https://www.amcharts.com/lib/4/core.js"></script>
+<script src="https://www.amcharts.com/lib/4/charts.js"></script>
+<script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+
+<!-- Chart code -->
+<script>
+am4core.ready(function() {
+
+// Themes begin
+am4core.useTheme(am4themes_animated);
+// Themes end
+
+var chart = am4core.create("chartdiv", am4charts.XYChart);
+chart.paddingRight = 20;
+
+chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
+
+var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+dateAxis.renderer.grid.template.location = 0;
+
+var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+valueAxis.tooltip.disabled = true;
+
+var series = chart.series.push(new am4charts.CandlestickSeries());
+series.dataFields.dateX = "date";
+series.dataFields.valueY = "close";
+series.dataFields.openValueY = "open";
+series.dataFields.lowValueY = "low";
+series.dataFields.highValueY = "high";
+series.simplifiedProcessing = true;
+series.tooltipText = "Open:{openValueY.value}원\nLow:{lowValueY.value}원\nHigh:{highValueY.value}원\nClose:{valueY.value}원";
+
+chart.cursor = new am4charts.XYCursor();
+
+// a separate series for scrollbar
+var lineSeries = chart.series.push(new am4charts.LineSeries());
+lineSeries.dataFields.dateX = "date";
+lineSeries.dataFields.valueY = "close";
+// need to set on default state, as initially series is "show"
+lineSeries.defaultState.properties.visible = false;
+
+// hide from legend too (in case there is one)
+lineSeries.hiddenInLegend = true;
+lineSeries.fillOpacity = 0.5;
+lineSeries.strokeOpacity = 0.5;
+
+var scrollbarX = new am4charts.XYChartScrollbar();
+scrollbarX.series.push(lineSeries);
+chart.scrollbarX = scrollbarX;
+
+var data = {{ data|safe }};
+chart.data = data;
+
+}); // end am4core.ready()
+</script>
+
+<!-- HTML -->
+<div id="chartdiv"></div>
+</div>
+
+
+
+
+<div>
+    거래하기
+
+</div>
+
+{% endblock %}

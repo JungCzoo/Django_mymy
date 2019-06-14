@@ -1,9 +1,13 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, render_to_response
 from django.utils import timezone
-from .models import Post, Search
-from .forms import PostForm, SearchForm
+
+
+from .models import Post
+from .forms import PostForm
+from . import upbit_ticker
+import json
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect
-from . import find_profile
 
 
 def post_list(request):
@@ -53,19 +57,16 @@ def post_remove(request, pk):
     post.delete()
     return redirect('post_list')
 
-
-
-def lol_search(request):
-    if request.method == "POST":
-        form = SearchForm(request.POST)
-        if form.is_valid():
-            summoner = form.save(commit=False)
-            find = find_profile
-            profiles = find.search(summoner)
-            return render(request, 'mymy/lol_profile.html', {'profiles' : profiles})
+def coin_ticker(request):
+    if request.is_ajax():
+        coin_name = request.POST.get('coin_name',None)
+        data = upbit_ticker.dict_date(coin_name)
+        dict = json.dumps(data)
+        return HttpResponse(dict, content_type="application/json")
     else:
-        form = SearchForm()
-        return render(request, 'mymy/lol_search.html', {'form' : form})
+        coin_name = 'KRW-BTC'
+        data = upbit_ticker.dict_date(coin_name)
+        price = upbit_ticker.ticker()
+        dict = json.dumps(data)
+        return render(request, 'mymy/coin_ticker.html', {'prices' : price, 'data' : dict})
 
-def lol_profile(request):
-    return render(request, 'mymy/lol_profile.html')

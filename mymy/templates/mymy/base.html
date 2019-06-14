@@ -2,25 +2,98 @@
 {% load static %}
 <html>
     <head>
-
-        <title>Django Girls blog</title>
+        <title>ZOO</title>
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
         <link href='//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="{% static 'css/mymy.css' %}">
+
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('#myTable').DataTable({
+                paging: false,
+                scrollY: 400,
+                scrollCollapse: true,
+                });
+                $('#myTable tbody').on('click', 'tr', function () {
+                var table = $('#myTable').DataTable();
+                coin = table.row(this).data();
+                coin_name = coin[0];
+                console.log(coin_name);
+                $.ajax({
+                type: "POST",
+                url: "{% url 'coin_ticker' %}",
+                data: {'coin_name': coin_name, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                success: function(response){
+                    am4core.ready(function() {
+
+                    // Themes begin
+                    am4core.useTheme(am4themes_animated);
+                    // Themes end
+
+                    var chart = am4core.create("chartdiv", am4charts.XYChart);
+                    chart.paddingRight = 20;
+
+                    chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
+
+                    var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+                    dateAxis.renderer.grid.template.location = 0;
+
+                    var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+                    valueAxis.tooltip.disabled = true;
+
+                    var series = chart.series.push(new am4charts.CandlestickSeries());
+                    series.dataFields.dateX = "date";
+                    series.dataFields.valueY = "close";
+                    series.dataFields.openValueY = "open";
+                    series.dataFields.lowValueY = "low";
+                    series.dataFields.highValueY = "high";
+                    series.simplifiedProcessing = true;
+                    series.tooltipText = "Open:{openValueY.value}원\nLow:{lowValueY.value}원\nHigh:{highValueY.value}원\nClose:{valueY.value}원";
+
+                    chart.cursor = new am4charts.XYCursor();
+
+                    // a separate series for scrollbar
+                    var lineSeries = chart.series.push(new am4charts.LineSeries());
+                    lineSeries.dataFields.dateX = "date";
+                    lineSeries.dataFields.valueY = "close";
+                    // need to set on default state, as initially series is "show"
+                    lineSeries.defaultState.properties.visible = false;
+
+                    // hide from legend too (in case there is one)
+                    lineSeries.hiddenInLegend = true;
+                    lineSeries.fillOpacity = 0.5;
+                    lineSeries.strokeOpacity = 0.5;
+
+                    var scrollbarX = new am4charts.XYChartScrollbar();
+                    scrollbarX.series.push(lineSeries);
+                    chart.scrollbarX = scrollbarX;
+
+                    chart.data = response;
+
+                    }); // end am4core.ready()
+
+                },
+                error:function(request,status,error){
+                    alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);}
+                })
+                });
+            } );
+        </script>
     </head>
     <body>
         <div class="page-header">
-            <a href="{% url 'lol_search' %}" class="top-menu" class="btn btn-default" role="button">LOL</a>
+            <a href="{% url 'coin_ticker' %}" class="top-menu" class="btn btn-default" role="button">트레이딩</a>
             <a href="{% url 'post_draft_list' %}" class="top-menu"><span class="glyphicon glyphicon-edit"></span></a>
-            {% if user.is_authenticated %}
-                <a href="{% url 'post_new' %}" class="top-menu"><span class="glyphicon glyphicon-plus"></span></a>
-            {% endif %}
-            <h1><a href="/">Django Girls Blog</a></h1>
+            <a href="{% url 'post_new' %}" class="top-menu"><span class="glyphicon glyphicon-plus"></span></a>
+            <h1><a href="/"> FFFFFFFFF</a></h1>
         </div>
-        <div class="content container">
+        <div class="container">
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-md-12">
                 {% block content %}
                 {% endblock %}
                 </div>

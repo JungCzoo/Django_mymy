@@ -7,9 +7,8 @@ urlpatterns = [
     path('post/<int:pk>/', views.post_detail, name='post_detail'),
     path('post/new', views.post_new, name='post_new'),
     path('post/<int:pk>/edit/', views.post_edit, name='post_edit'),
+    path('coin_ticker', views.coin_ticker, name='coin_ticker'),
     url(r'^drafts/$', views.post_draft_list, name='post_draft_list'),
     url(r'^post/(?P<pk>\d+)/publish/$', views.post_publish, name='post_publish'),
     url(r'^post/(?P<pk>\d+)/remove/$', views.post_remove, name='post_remove'),
-    path('lol_search', views.lol_search, name='lol_search'),
-    path('lol_profile', views.lol_profile, name='lol_profile'),
 ]

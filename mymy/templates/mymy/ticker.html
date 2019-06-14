@@ -1,0 +1,29 @@
+<script>
+    $(document).ready(function() {
+        $('#myTable').DataTable({
+        paging: false,
+        scrollY: 400,
+        scrollCollapse: true,
+        });
+
+        $('#myTable tbody').on('click', 'tr', function () {
+        var table = $('#myTable').DataTable();
+        coin = table.row(this).data();
+        coin_name = coin[0];
+        console.log(coin_name);
+
+        $.ajax({
+        type: "POST",
+        url: "{% url 'coin_ticker' %}",
+        data: {'coin_name': coin_name, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+        success: function(response){
+            am4core.ready(function()
+            chart.data = response;
+            }); // end am4core.ready()
+        },
+        error:function(request,status,error){
+            alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);}
+        })
+        });
+    } );
+</script>

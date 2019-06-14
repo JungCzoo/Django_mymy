@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Post, Search
+from .models import Post
 
 class PostForm(forms.ModelForm):
 
@@ -8,8 +8,5 @@ class PostForm(forms.ModelForm):
         model = Post
         fields = ('title', 'text',)
 
-class SearchForm(forms.ModelForm):
-    class Meta:
-        model = Search
-        fields = ('summoner_name',)
+
 
